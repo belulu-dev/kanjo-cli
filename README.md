@@ -10,7 +10,14 @@
 # macOS / Linux
 tar xzf kanjo-*.tar.gz
 sudo mv kanjo-*/kanjo /usr/local/bin/
+```
 
+```powershell
+# Windows (PowerShell)
+irm https://github.com/belulu-dev/kanjo-cli/releases/latest/download/kanjo-0.2.0-windows-amd64.tar.gz -OutFile kanjo.tar.gz; tar xzf kanjo.tar.gz; Move-Item kanjo-*\kanjo.exe $env:LOCALAPPDATA\Microsoft\WindowsApps\kanjo.exe -Force; Remove-Item kanjo.tar.gz, kanjo-* -Recurse
+```
+
+```bash
 # アップグレード
 kanjo upgrade
 ```
