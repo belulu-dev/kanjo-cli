@@ -4,10 +4,23 @@
 
 ## インストール
 
+### ワンライナー
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/belulu-dev/kanjo-cli/main/install.sh | bash
+```
+
+`/usr/local/bin` に書き込み権限がない場合は `sudo` で実行されます。インストール先を変更するには `KANJO_INSTALL_DIR` を指定してください。
+
+```bash
+KANJO_INSTALL_DIR=$HOME/.local/bin curl -fsSL https://raw.githubusercontent.com/belulu-dev/kanjo-cli/main/install.sh | bash
+```
+
+### 手動インストール
+
 [Releases](https://github.com/belulu-dev/kanjo-cli/releases) からお使いの OS に合ったバイナリをダウンロードして、パスの通ったディレクトリに配置してください。
 
 ```bash
-# macOS / Linux
 tar xzf kanjo-*.tar.gz
 sudo mv kanjo-*/kanjo /usr/local/bin/
 ```
@@ -17,8 +30,9 @@ sudo mv kanjo-*/kanjo /usr/local/bin/
 irm https://github.com/belulu-dev/kanjo-cli/releases/latest/download/kanjo-0.2.0-windows-amd64.tar.gz -OutFile kanjo.tar.gz; tar xzf kanjo.tar.gz; Move-Item kanjo-*\kanjo.exe $env:LOCALAPPDATA\Microsoft\WindowsApps\kanjo.exe -Force; Remove-Item kanjo.tar.gz, kanjo-* -Recurse
 ```
 
+### アップグレード
+
 ```bash
-# アップグレード
 kanjo upgrade
 ```
 
