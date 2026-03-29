@@ -56,6 +56,7 @@ kanjo upgrade
 | `kanjo add expense` | 支出を登録 |
 | `kanjo add income` | 収入を登録 |
 | `kanjo add transfer` | 振替を登録 |
+| `kanjo add-receipt` | レシート一括登録 |
 | `kanjo list` | 取引一覧 |
 | `kanjo last` | 直近の取引 |
 | `kanjo edit` | 取引を編集 |
@@ -133,6 +134,7 @@ kanjo add expense <金額> <費目> [オプション]
 | `--account` | `-a` | 口座名 **（必須）** |
 | `--date` | `-d` | 日付 YYYY-MM-DD（デフォルト: 今日） |
 | `--sub` | | サブカテゴリ |
+| `--description` | | 商品名・説明 |
 | `--shop` | | お店 |
 | `--memo` | `-m` | メモ |
 | `--quantity` | | 数量 |
@@ -143,7 +145,7 @@ kanjo add expense <金額> <費目> [オプション]
 kanjo add expense 1200 食費 -a 現金
 
 # フルオプション
-kanjo add expense 1200 食費 --sub 外食 -a 三井住友VISA --shop ガスト -m "ランチ" -d 2026-03-01
+kanjo add expense 1200 食費 --sub 外食 -a 三井住友VISA --shop ガスト --description "ランチセット" -m "同僚と" -d 2026-03-01
 
 # 数量×単価
 kanjo add expense 0 日用品 -a 現金 --quantity 3 --unit-price 150
@@ -160,6 +162,7 @@ kanjo add income <金額> <費目> [オプション]
 | `--account` | `-a` | 口座名 **（必須）** |
 | `--date` | `-d` | 日付 YYYY-MM-DD（デフォルト: 今日） |
 | `--sub` | | サブカテゴリ |
+| `--description` | | 商品名・説明 |
 | `--memo` | `-m` | メモ |
 
 ```bash
@@ -176,14 +179,78 @@ kanjo add transfer <金額> [オプション]
 |-----------|------|------|
 | `--from` | | 振替元口座名 **（必須）** |
 | `--to` | | 振替先口座名 **（必須）** |
-| `--type` | | 振替種別 **（必須）**: `savings`（貯金）/ `credit`（クレカ引落）/ `adjustment`（調整） |
+| `--type` | | 振替種別（デフォルト: `transfer`） |
 | `--date` | `-d` | 日付 YYYY-MM-DD（デフォルト: 今日） |
 | `--memo` | `-m` | メモ |
 
+#### 振替種別
+
+| エイリアス | サーバー値 | 説明 |
+|-----------|-----------|------|
+| `transfer` | `account_transfer` | 口座振替（デフォルト） |
+| `savings` | `savings` | 貯蓄 |
+| `savings_withdrawal` | `savings_withdrawal` | 貯蓄引出 |
+| `credit` | `card_settlement` | クレカ引落 |
+| `emoney` | `emoney_charge` | 電子マネーチャージ |
+| `loan` | `loan` | 借入金 |
+| `loan_repayment` | `loan_repayment` | 借入金返済 |
+
+サーバー値をそのまま指定することもできます。
+
 ```bash
+# ATM引き出し（銀行→現金）
+kanjo add transfer 43000 --from すのぺい銀行 --to 財布
+
+# 貯蓄
 kanjo add transfer 50000 --from 三菱UFJ --to SBI証券 --type savings
+
+# クレカ引落
 kanjo add transfer 30000 --from 三菱UFJ --to 三井住友VISA --type credit
+
+# 電子マネーチャージ
+kanjo add transfer 5000 --from すのぺい銀行 --to すのPay --type emoney
 ```
+
+### レシート一括登録
+
+```bash
+kanjo add-receipt [オプション]
+```
+
+レシートの複数明細をまとめて一括登録します。同一レシートの取引はグループ化され、一覧画面でまとめて表示できます。
+
+| オプション | 短縮 | 説明 |
+|-----------|------|------|
+| `--account` | `-a` | 口座名 **（必須）** |
+| `--items` | | 明細 JSON 配列 **（必須）** |
+| `--date` | `-d` | 日付 YYYY-MM-DD（デフォルト: 今日） |
+| `--shop` | | お店名 |
+
+#### items の形式
+
+JSON 配列で各明細を指定します。
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `amount` | Yes | 金額 |
+| `category` | Yes | 費目名 |
+| `sub` | No | サブカテゴリ名 |
+| `description` | No | 商品名・説明 |
+| `memo` | No | メモ |
+
+```bash
+kanjo add-receipt \
+  --date 2026-03-29 \
+  --shop "セブンイレブン" \
+  --account すのPay \
+  --items '[
+    {"amount":138,"category":"食費","sub":"食料品","description":"7P キョウタンサンスイ 1L"},
+    {"amount":108,"category":"食費","sub":"食料品","description":"7P 天然水 2L"},
+    {"amount":110,"category":"日用品","sub":"消耗品","description":"ノンアルコールウェット 80枚"}
+  ]'
+```
+
+登録成功時はレシートグループ ID と件数・合計金額が表示されます。エラー時は行番号付きの詳細が表示されます。
 
 ## 取引照会
 
@@ -252,6 +319,7 @@ kanjo edit <ID> [オプション]
 | `--sub` | | サブカテゴリ（`--category` と同時指定が必要） |
 | `--account` | `-a` | 口座名 |
 | `--date` | `-d` | 日付 YYYY-MM-DD |
+| `--description` | | 商品名・説明（空文字でクリア） |
 | `--shop` | | お店（空文字でクリア） |
 | `--memo` | `-m` | メモ（空文字でクリア） |
 
